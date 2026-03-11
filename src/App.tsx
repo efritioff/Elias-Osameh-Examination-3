@@ -4,7 +4,6 @@ import { RegisterPage } from "./pages/Register.tsx";
 
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
-import LibraryPage from "./pages/Library.tsx";
 
 function HomePage() {
   return (
