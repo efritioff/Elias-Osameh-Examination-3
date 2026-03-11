@@ -34,8 +34,7 @@ export function RegisterPage() {
         return;
       }
 
-      setMessage("Registrering lyckades. Du kan nu logga in.");
-      setPassword("");
+      window.location.href = "/login";
     } catch {
       setMessage("Kunde inte nå servern på http://localhost:3001");
     } finally {
