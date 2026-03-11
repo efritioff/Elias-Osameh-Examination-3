@@ -66,7 +66,7 @@ export function LibraryPage() {
 				</div>
 				<nav className="lib-nav-links">
 					<a href="#" className="nav-link active">Browse</a>
-					<a href="#" className="nav-link">My Books</a>
+					<a href="/mybooks" className="nav-link">My Books</a>
 					<a href="/login" className="nav-link nav-logout">Sign Out</a>
 				</nav>
 			</header>

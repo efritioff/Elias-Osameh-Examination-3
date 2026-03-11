@@ -2,6 +2,7 @@ import "./index.css";
 import { LoginPage } from "./pages/Login.tsx";
 import { RegisterPage } from "./pages/Register.tsx";
 import { LibraryPage } from "./pages/library.tsx";
+import { MyBooksPage } from "./pages/mybooks.tsx";
 
 function HomePage() {
   return (
@@ -25,13 +26,17 @@ export function App() {
     return ( <LibraryPage /> );
   }
 
+  if (path === "/mybooks") {
+    return <MyBooksPage />;
+  }
+
   if (path !== "/") {
     return (
       <div className="app">
         <h1>404 - Page not found</h1>
         <p>
           Try <a href="/">/</a>, <a href="/login">/login</a>, or{" "}
-          <a href="/register">/register</a>, or <a href="/library">/library</a>.
+          <a href="/register">/register</a>, <a href="/library">/library</a>, or <a href="/mybooks">/mybooks</a>.
         </p>
       </div>
     );
