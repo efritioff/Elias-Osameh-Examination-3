@@ -1,10 +1,11 @@
-import { APITester } from "./APITester";
 import "./index.css";
+import { LoginPage } from "./pages/Login.tsx";
+import { RegisterPage } from "./pages/Register.tsx";
 
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
 
-export function App() {
+function HomePage() {
   return (
     <div className="app">
       <div className="logo-container">
@@ -16,9 +17,34 @@ export function App() {
       <p>
         Edit <code>src/App.tsx</code> and save to test HMR
       </p>
-      <APITester />
     </div>
   );
+}
+
+export function App() {
+  const path = window.location.pathname.toLowerCase();
+
+  if (path === "/login") {
+    return <LoginPage />;
+  }
+
+  if (path === "/register") {
+    return <RegisterPage />;
+  }
+
+  if (path !== "/") {
+    return (
+      <div className="app">
+        <h1>404 - Page not found</h1>
+        <p>
+          Try <a href="/">/</a>, <a href="/login">/login</a>, or{" "}
+          <a href="/register">/register</a>.
+        </p>
+      </div>
+    );
+  }
+
+  return <HomePage />;
 }
 
 export default App;
