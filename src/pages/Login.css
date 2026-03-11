@@ -1,52 +1,247 @@
-.login-page {
-    height: 100vh;
-    background: radial-gradient(circle at center,
-            #e9edf3 0%,
-            #d7dde6 35%,
-            #c7ced8 60%,
-            #b4bcc7 100%);
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Libre Baskerville', Georgia, serif;
+
+  background-color: #1c0f07;
+  background-image:
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px, transparent 18px,
+      rgba(255, 200, 120, 0.025) 18px, rgba(255, 200, 120, 0.025) 19px
+    ),
+    repeating-linear-gradient(
+      88deg,
+      transparent 0px, transparent 34px,
+      rgba(0, 0, 0, 0.08) 34px, rgba(0, 0, 0, 0.08) 35px
+    ),
+    radial-gradient(ellipse 55% 40% at 50% 0%, rgba(210, 140, 40, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(120, 60, 10, 0.4) 0%, transparent 80%);
+
+  padding: 40px 16px;
+}
+
 
 .form-wrapper {
-    display: flex;
-    flex-direction: column;
-    background-color: #fafafa;
-    width: min(92vw, 420px);
-    margin: 0 auto;
-    padding: 1.5rem;
-    border-radius: 12px;
-    gap: 0.75rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(92vw, 440px);
+  padding: 56px 52px 48px;
+
+  background-color: #f5ead6;
+  background-image: linear-gradient(160deg, #f8efe0 0%, #f0e2c8 50%, #e8d5b5 100%);
+
+  border-radius: 2px;
+  border-top: 5px solid #5c2d0a;
+
+  box-shadow:
+    0 0 0 1px rgba(92, 45, 10, 0.3),
+    0 2px 0 rgba(255, 220, 150, 0.15) inset,
+    0 30px 70px rgba(0, 0, 0, 0.6),
+    0 10px 30px rgba(0, 0, 0, 0.4);
+
+  animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Corner fleurons */
+.form-wrapper::before,
+.form-wrapper::after {
+  content: '❧';
+  position: absolute;
+  font-size: 1.1rem;
+  color: rgba(92, 45, 10, 0.3);
+  line-height: 1;
+  pointer-events: none;
+}
+.form-wrapper::before { top: 14px; left: 18px; }
+.form-wrapper::after  { bottom: 14px; right: 18px; transform: rotate(180deg); }
+
+
+.form-wrapper h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  color: #2a1005;
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-shadow: 1px 1px 0 rgba(255, 220, 150, 0.3);
+  animation: fadeUp 0.5s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.form-wrapper h1::before {
+  content: '— ✦ —';
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  color: rgba(92, 45, 10, 0.4);
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+
+.form-wrapper h1::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin: 18px auto 28px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(92, 45, 10, 0.2) 15%,
+    rgba(92, 45, 10, 0.55) 50%,
+    rgba(92, 45, 10, 0.2) 85%,
+    transparent 100%
+  );
+}
+
+
 .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.5s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login-form p {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.68rem;
+  font-style: italic;
+  color: #6b3a1f;
+  margin-bottom: 7px;
+  letter-spacing: 0.05em;
+}
+
+.login-form p:not(:first-child) {
+  margin-top: 22px;
 }
 
 .login-form input {
-    padding: 0.65rem 0.75rem;
-    border: 1px solid #c8d0db;
-    border-radius: 8px;
+  width: 100%;
+  padding: 11px 14px;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.88rem;
+  color: #2a1005;
+  background: rgba(255, 248, 232, 0.7);
+  border: 1px solid rgba(92, 45, 10, 0.25);
+  border-bottom: 2px solid rgba(92, 45, 10, 0.4);
+  border-radius: 1px;
+  outline: none;
+  transition: all 0.25s ease;
+  caret-color: #5c2d0a;
 }
+
+.login-form input::placeholder {
+  color: rgba(107, 58, 31, 0.4);
+  font-style: italic;
+}
+
+.login-form input:focus {
+  background: rgba(255, 250, 238, 0.98);
+  border-color: #5c2d0a;
+  box-shadow: 0 0 0 3px rgba(92, 45, 10, 0.07), inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
 
 .login-button {
-    margin-top: 0.5rem;
-    padding: 0.65rem 0.85rem;
-    border: 0;
-    border-radius: 8px;
-    background: #44556b;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
+  margin-top: 32px;
+  padding: 14px 24px;
+  width: 100%;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #f5ead6;
+  background: #3d1a06;
+  border: 1px solid rgba(180, 100, 30, 0.35);
+  border-radius: 1px;
+  cursor: pointer;
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.3s ease;
+  animation: fadeUp 0.5s 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
 }
 
-.login-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+.login-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #6b2f08 0%, #9e4e10 50%, #6b2f08 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
 }
 
-.status-text {
-    font-size: 0.95rem;
-    color: #2f3d4f;
+.login-button:hover::before { opacity: 1; }
+.login-button:hover {
+  box-shadow: 0 6px 20px rgba(92, 45, 10, 0.45), 0 2px 8px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+.login-button:active { transform: translateY(0); }
+
+
+.form-wrapper > p {
+  margin-top: 24px;
+  text-align: center;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: rgba(92, 45, 10, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeUp 0.5s 0.44s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.form-wrapper > p::before,
+.form-wrapper > p::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(92, 45, 10, 0.28), transparent);
+}
+
+
+.form-wrapper a {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #5c2d0a;
+  text-decoration: none;
+  transition: color 0.2s ease, letter-spacing 0.3s ease;
+  animation: fadeUp 0.5s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.form-wrapper a:hover {
+  color: #2a1005;
+  letter-spacing: 0.22em;
+}
+
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
