@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* ─── Reset ─────────────────────────────────────────── */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ─── Page ──────────────────────────────────────────── */
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -33,7 +33,7 @@
   padding: 40px 16px;
 }
 
-/* ─── Card ──────────────────────────────────────────── */
+
 .form-wrapper {
   position: relative;
   display: flex;
@@ -69,7 +69,7 @@
 .form-wrapper::before { top: 14px; left: 18px; }
 .form-wrapper::after  { bottom: 14px; right: 18px; transform: rotate(180deg); }
 
-/* ─── Heading ───────────────────────────────────────── */
+
 .form-wrapper h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
@@ -107,7 +107,7 @@
   );
 }
 
-/* ─── Form ──────────────────────────────────────────── */
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -153,7 +153,7 @@
   box-shadow: 0 0 0 3px rgba(92, 45, 10, 0.07), inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* ─── Login Button ──────────────────────────────────── */
+
 .login-button {
   margin-top: 32px;
   padding: 14px 24px;
@@ -192,7 +192,7 @@
 }
 .login-button:active { transform: translateY(0); }
 
-/* ─── Or divider ────────────────────────────────────── */
+
 .form-wrapper > p {
   margin-top: 24px;
   text-align: center;
@@ -214,7 +214,7 @@
   background: linear-gradient(90deg, transparent, rgba(92, 45, 10, 0.28), transparent);
 }
 
-/* ─── Sign Up link ──────────────────────────────────── */
+
 .form-wrapper a {
   display: block;
   margin-top: 14px;
@@ -235,7 +235,7 @@
   letter-spacing: 0.22em;
 }
 
-/* ─── Animations ────────────────────────────────────── */
+
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(28px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }

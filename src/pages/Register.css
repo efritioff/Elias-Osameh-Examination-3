@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* ─── Reset ─────────────────────────────────────────── */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ─── Page ──────────────────────────────────────────── */
+
 .register-page {
   min-height: 100vh;
   display: flex;
@@ -33,7 +33,7 @@
   padding: 40px 16px;
 }
 
-/* ─── Card ──────────────────────────────────────────── */
+
 .form-wrapper {
   position: relative;
   display: flex;
@@ -56,7 +56,7 @@
   animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Corner fleurons */
+
 .form-wrapper::before,
 .form-wrapper::after {
   content: '❧';
@@ -69,7 +69,7 @@
 .form-wrapper::before { top: 14px; left: 18px; }
 .form-wrapper::after  { bottom: 14px; right: 18px; transform: rotate(180deg); }
 
-/* ─── Heading ───────────────────────────────────────── */
+
 .form-wrapper h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
@@ -107,7 +107,7 @@
   );
 }
 
-/* ─── Subtitle ──────────────────────────────────────── */
+
 .form-wrapper .subtitle {
   text-align: center;
   font-family: 'Libre Baskerville', serif;
@@ -119,7 +119,7 @@
   animation: fadeUp 0.5s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ─── Form ──────────────────────────────────────────── */
+
 .register-form {
   display: flex;
   flex-direction: column;
@@ -165,7 +165,7 @@
   box-shadow: 0 0 0 3px rgba(92, 45, 10, 0.07), inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* ─── Create Account Button ─────────────────────────── */
+
 .register-button {
   margin-top: 32px;
   padding: 14px 24px;
@@ -204,7 +204,7 @@
 }
 .register-button:active { transform: translateY(0); }
 
-/* ─── Footer text ───────────────────────────────────── */
+
 .form-wrapper .footer-text {
   margin-top: 24px;
   text-align: center;
@@ -229,7 +229,7 @@
   letter-spacing: 0.14em;
 }
 
-/* ─── Animations ────────────────────────────────────── */
+
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(28px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
