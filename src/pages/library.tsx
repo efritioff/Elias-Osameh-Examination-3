@@ -1,12 +1,11 @@
 import "./Library.css";
 import { useEffect, useMemo, useState } from "react";
+import { authFetch, logout } from "../auth";
 
 type Book = {
   _id: string;
   book_title: string;
   author: string;
-  total_books: number;
-  borrowed_books: number;
 };
 
 export function LibraryPage() {
@@ -14,18 +13,28 @@ export function LibraryPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [query, setQuery] = useState("");
+	const [modalOpen, setModalOpen] = useState(false);
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const [formTitle, setFormTitle] = useState("");
+	const [formAuthor, setFormAuthor] = useState("");
+	const [formError, setFormError] = useState("");
+	const [saving, setSaving] = useState(false);
 
-	useEffect(() => {
-		async function loadBooks() {
+	async function loadBooks() {
 			setLoading(true);
 			setError("");
 
 			try {
-				const res = await fetch("http://localhost:3001/books");
+				const res = await authFetch("http://localhost:3001/books");
 				const data = (await res.json().catch(() => ({}))) as {
 					books?: Book[];
 					error?: string;
 				};
+
+				if (res.status === 401) {
+					window.location.href = "/login";
+					return;
+				}
 
 				if (!res.ok) {
 					setError(data.error ?? "Kunde inte hämta böcker.");
@@ -38,10 +47,109 @@ export function LibraryPage() {
 			} finally {
 				setLoading(false);
 			}
-		}
+	}
 
+	async function handleLogout() {
+		await logout();
+		window.location.href = "/login";
+	}
+
+	useEffect(() => {
 		loadBooks();
 	}, []);
+
+	function openCreateModal() {
+		setEditingId(null);
+		setFormTitle("");
+		setFormAuthor("");
+		setFormError("");
+		setModalOpen(true);
+	}
+
+	function openEditModal(book: Book) {
+		setEditingId(book._id);
+		setFormTitle(book.book_title);
+		setFormAuthor(book.author);
+		setFormError("");
+		setModalOpen(true);
+	}
+
+	function closeModal() {
+		if (saving) return;
+		setModalOpen(false);
+		setFormError("");
+	}
+
+	async function handleSave(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		setFormError("");
+
+		const book_title = formTitle.trim();
+		const author = formAuthor.trim();
+		if (!book_title || !author) {
+			setFormError("Book title och author krävs.");
+			return;
+		}
+
+		setSaving(true);
+		try {
+			const isCreate = editingId === null;
+			const url = isCreate
+				? "http://localhost:3001/books"
+				: `http://localhost:3001/books/${encodeURIComponent(editingId)}`;
+			const method = isCreate ? "POST" : "PATCH";
+
+			const res = await authFetch(url, {
+				method,
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ book_title, author }),
+			});
+
+			const data = (await res.json().catch(() => ({}))) as { error?: string };
+			if (res.status === 401) {
+				window.location.href = "/login";
+				return;
+			}
+			if (!res.ok) {
+				setFormError(data.error ?? "Kunde inte spara boken.");
+				return;
+			}
+
+			await loadBooks();
+			setModalOpen(false);
+		} catch {
+			setFormError("Kunde inte nå servern.");
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	async function handleDelete() {
+		if (!editingId) return;
+		setFormError("");
+		setSaving(true);
+		try {
+			const res = await authFetch(`http://localhost:3001/books/${encodeURIComponent(editingId)}`, {
+				method: "DELETE",
+			});
+			const data = (await res.json().catch(() => ({}))) as { error?: string };
+			if (res.status === 401) {
+				window.location.href = "/login";
+				return;
+			}
+			if (!res.ok) {
+				setFormError(data.error ?? "Kunde inte radera boken.");
+				return;
+			}
+
+			await loadBooks();
+			setModalOpen(false);
+		} catch {
+			setFormError("Kunde inte nå servern.");
+		} finally {
+			setSaving(false);
+		}
+	}
 
 	const filteredBooks = useMemo(() => {
 		const q = query.trim().toLowerCase();
@@ -66,8 +174,8 @@ export function LibraryPage() {
 				</div>
 				<nav className="lib-nav-links">
 					<a href="#" className="nav-link active">Browse</a>
-					<a href="/mybooks" className="nav-link">My Books</a>
-					<a href="/login" className="nav-link nav-logout">Sign Out</a>
+					<a href="/authors" className="nav-link">Authors</a>
+					<button type="button" className="nav-link nav-logout" onClick={handleLogout}>Sign Out</button>
 				</nav>
 			</header>
 
@@ -82,6 +190,11 @@ export function LibraryPage() {
 
 			{/* ── Search & Filter ── */}
 			<section className="lib-toolbar">
+				<div className="toolbar-actions">
+					<button className="add-book-button" onClick={openCreateModal} type="button">
+						Add Book
+					</button>
+				</div>
 				<div className="search-wrap">
 					<span className="search-icon">⚲</span>
 					<input
@@ -105,23 +218,21 @@ export function LibraryPage() {
 				{error && <p>{error}</p>}
 
 				{!loading && !error && filteredBooks.map(book => {
-					const availableCount = Math.max(book.total_books - book.borrowed_books, 0);
-					const isAvailable = availableCount > 0;
-
 					return (
 						<article className="book-card" key={book._id}>
-							<div className={`card-spine ${isAvailable ? "" : "borrowed-spine"}`} />
+							<div className="card-spine" />
 							<div className="card-body">
 								<p className="card-genre">Book</p>
 								<h2 className="card-title">{book.book_title}</h2>
 								<p className="card-author">— {book.author}</p>
-								<p className="card-desc">
-									Total: {book.total_books} · Borrowed: {book.borrowed_books} · Available: {availableCount}
-								</p>
 								<div className="card-footer">
-									<span className={`card-badge ${isAvailable ? "available" : "borrowed"}`}>
-										{isAvailable ? "Available" : "Borrowed"}
-									</span>
+									<button
+										className="edit-book-button"
+										type="button"
+										onClick={() => openEditModal(book)}
+									>
+										Edit
+									</button>
 								</div>
 							</div>
 						</article>
@@ -134,6 +245,45 @@ export function LibraryPage() {
 			<footer className="lib-footer">
 				<p>❧ Bibliotheca — {new Date().getFullYear()} ❧</p>
 			</footer>
+
+			<div className={`edit-overlay ${modalOpen ? "open" : ""}`} onClick={closeModal}>
+				<div className="edit-modal" onClick={e => e.stopPropagation()}>
+					<h2>{editingId ? "Edit Book" : "Add Book"}</h2>
+					<form className="edit-form" onSubmit={handleSave}>
+						<label htmlFor="book-title">Book Title</label>
+						<input
+							id="book-title"
+							type="text"
+							value={formTitle}
+							onChange={e => setFormTitle(e.target.value)}
+							required
+						/>
+
+						<label htmlFor="book-author">Author</label>
+						<input
+							id="book-author"
+							type="text"
+							value={formAuthor}
+							onChange={e => setFormAuthor(e.target.value)}
+							required
+						/>
+
+						{formError && <p className="form-error">{formError}</p>}
+
+						<div className="modal-actions">
+							<button type="button" onClick={closeModal} disabled={saving}>Cancel</button>
+							{editingId && (
+								<button type="button" className="danger" onClick={handleDelete} disabled={saving}>
+									Delete
+								</button>
+							)}
+							<button type="submit" className="primary" disabled={saving}>
+								{saving ? "Saving..." : "Save"}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
 
 		</div>
 	);

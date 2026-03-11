@@ -1,5 +1,6 @@
 import "./Login.css";
 import { useState } from "react";
+import { setAccessToken } from "../auth";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,10 +33,10 @@ export function LoginPage() {
 
       const token = data.accessToken ?? "";
       if (token) {
-        localStorage.setItem("accessToken", token);
+        setAccessToken(token);
       }
 
-      setMessage("Inloggning lyckades");
+      window.location.href = "/library";
     } catch {
       setMessage("Kunde inte nå servern på http://localhost:3001");
     } finally {

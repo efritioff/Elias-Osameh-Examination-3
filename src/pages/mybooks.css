@@ -181,6 +181,53 @@
   gap: 48px;
 }
 
+.author-form {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  gap: 10px;
+}
+
+.author-form input,
+.author-search,
+.author-edit-grid input {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  background: var(--parchment);
+  color: var(--ink);
+}
+
+.author-search-wrap {
+  margin-top: 10px;
+}
+
+.author-search {
+  width: 100%;
+}
+
+.authors-error {
+  color: #ffd6cc;
+  font-size: 0.8rem;
+}
+
+.authors-info {
+  color: rgba(245,234,214,0.7);
+  font-size: 0.8rem;
+}
+
+.author-edit-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 8px;
+}
+
+.author-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 /* ─── Section ───────────────────────────────────────── */
 .mybooks-section {
   display: flex;
@@ -510,6 +557,14 @@
 @media (max-width: 700px) {
   .lib-navbar { padding: 0 20px; }
   .mybooks-list { padding: 0 16px 60px; }
+
+  .author-form {
+    grid-template-columns: 1fr;
+  }
+
+  .author-edit-grid {
+    grid-template-columns: 1fr;
+  }
 
   .mybook-row {
     flex-wrap: wrap;
