@@ -10,6 +10,7 @@ console.log("MongoDB connected");
 
 const db = client.db("myapp");
 const users = db.collection("users");
+const books = db.collection("books");
 const refreshTokens = db.collection("refreshTokens");
 
 await users.createIndex({ email: 1 }, { unique: true });
@@ -149,6 +150,35 @@ Bun.serve({
       return jsonResponse({
         ok: true,
         id: result.insertedId
+      });
+    }
+
+    // BOOKS
+    if (req.method === "GET" && url.pathname === "/books") {
+      const rows = await books
+        .find(
+          {},
+          {
+            projection: {
+              _id: 1,
+              book_title: 1,
+              author: 1,
+              total_books: 1,
+              borrowed_books: 1,
+            },
+          }
+        )
+        .toArray();
+
+      return jsonResponse({
+        ok: true,
+        books: rows.map(row => ({
+          _id: String(row._id ?? ""),
+          book_title: String(row.book_title ?? ""),
+          author: String(row.author ?? ""),
+          total_books: Number(row.total_books ?? 0),
+          borrowed_books: Number(row.borrowed_books ?? 0),
+        })),
       });
     }
 
