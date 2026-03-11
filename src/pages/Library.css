@@ -87,6 +87,12 @@
   border-bottom: 1px solid transparent;
 }
 
+button.nav-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .nav-link:hover,
 .nav-link.active {
   color: var(--parchment);
@@ -140,6 +146,27 @@
   flex-direction: column;
   gap: 16px;
   animation: fadeUp 0.6s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.toolbar-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-book-button {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--parchment);
+  background: var(--mahogany);
+  border: 1px solid rgba(245,234,214,0.25);
+  padding: 8px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.add-book-button:hover {
+  background: #5a2408;
 }
 
 .search-wrap {
@@ -326,6 +353,23 @@
   border-top: 1px solid var(--rule);
 }
 
+.edit-book-button {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.edit-book-button:hover {
+  border-color: var(--brown);
+  background: rgba(92,45,10,0.08);
+}
+
 .card-badge, .panel-badge {
   font-size: 0.62rem;
   font-weight: 700;
@@ -383,6 +427,92 @@
   display: flex;
   justify-content: flex-end;
   animation: overlayIn 0.3s ease both;
+}
+
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 8, 5, 0.45);
+  backdrop-filter: blur(6px);
+}
+
+.edit-overlay.open {
+  display: flex;
+}
+
+.edit-modal {
+  width: min(92vw, 520px);
+  background: var(--parchment);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--brown);
+  box-shadow: 0 24px 50px rgba(0,0,0,0.45);
+  padding: 24px;
+}
+
+.edit-modal h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 14px;
+}
+
+.edit-form {
+  display: grid;
+  gap: 10px;
+}
+
+.edit-form label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(42,16,5,0.72);
+}
+
+.edit-form input {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  background: #fff9ef;
+  color: var(--ink);
+}
+
+.form-error {
+  color: #8e1a1a;
+  font-size: 0.8rem;
+}
+
+.modal-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--rule);
+  background: #fff7e8;
+  color: var(--ink);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.modal-actions button.primary {
+  background: var(--mahogany);
+  color: var(--parchment);
+  border-color: var(--mahogany);
+}
+
+.modal-actions button.danger {
+  background: #5f1f1f;
+  color: #fff;
+  border-color: #5f1f1f;
 }
 
 @keyframes overlayIn {

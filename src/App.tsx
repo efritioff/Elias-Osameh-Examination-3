@@ -1,28 +1,18 @@
 import "./index.css";
 import { LoginPage } from "./pages/Login.tsx";
 import { RegisterPage } from "./pages/Register.tsx";
-
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
-
-function HomePage() {
-  return (
-    <div className="app">
-      <div className="logo-container">
-        <img src={logo} alt="Bun Logo" className="logo bun-logo" />
-        <img src={reactLogo} alt="React Logo" className="logo react-logo" />
-      </div>
-
-      <h1>Bun + React</h1>
-      <p>
-        Edit <code>src/App.tsx</code> and save to test HMR
-      </p>
-    </div>
-  );
-}
+import { LibraryPage } from "./pages/library.tsx";
+import { MyBooksPage } from "./pages/mybooks.tsx";
+import { getAccessToken } from "./auth";
 
 export function App() {
   const path = window.location.pathname.toLowerCase();
+  const protectedPaths = new Set(["/library", "/authors"]);
+
+  if (protectedPaths.has(path) && !getAccessToken()) {
+    window.location.href = "/login";
+    return null;
+  }
 
   if (path === "/login") {
     return <LoginPage />;
@@ -37,19 +27,28 @@ export function App() {
     return ( <LibraryPage /> );
   }
 
+  if (path === "/authors") {
+    return <MyBooksPage />;
+  }
+
+  if (path === "/") {
+    window.location.href = "/library";
+    return null;
+  }
+
   if (path !== "/") {
     return (
       <div className="app">
         <h1>404 - Page not found</h1>
         <p>
           Try <a href="/">/</a>, <a href="/login">/login</a>, or{" "}
-          <a href="/register">/register</a>.
+          <a href="/register">/register</a>, <a href="/library">/library</a>, or <a href="/authors">/authors</a>.
         </p>
       </div>
     );
   }
 
-  return <HomePage />;
+  return null;
 }
 
 export default App;
