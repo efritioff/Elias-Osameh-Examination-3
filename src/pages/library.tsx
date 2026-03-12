@@ -1,12 +1,7 @@
-import "./Library.css";
+import "../Css/library.css";
 import { useEffect, useMemo, useState } from "react";
-import { authFetch, logout } from "../auth";
-
-type Book = {
-  _id: string;
-  book_title: string;
-  author: string;
-};
+import { logout } from "../auth";
+import { fetchBooks, createBook, updateBook, deleteBook, type Book } from "../api/books";
 
 export function LibraryPage() {
 	const [books, setBooks] = useState<Book[]>([]);
@@ -23,27 +18,11 @@ export function LibraryPage() {
 	async function loadBooks() {
 			setLoading(true);
 			setError("");
-
 			try {
-				const res = await authFetch("http://localhost:3001/books");
-				const data = (await res.json().catch(() => ({}))) as {
-					books?: Book[];
-					error?: string;
-				};
-
-				if (res.status === 401) {
-					window.location.href = "/login";
-					return;
-				}
-
-				if (!res.ok) {
-					setError(data.error ?? "Kunde inte hämta böcker.");
-					return;
-				}
-
-				setBooks(data.books ?? []);
-			} catch {
-				setError("Kunde inte nå servern på http://localhost:3001");
+				const data = await fetchBooks();
+				setBooks(data);
+			} catch (err) {
+				setError(err instanceof Error ? err.message : "Kunde inte nå servern.");
 			} finally {
 				setLoading(false);
 			}
@@ -93,32 +72,15 @@ export function LibraryPage() {
 
 		setSaving(true);
 		try {
-			const isCreate = editingId === null;
-			const url = isCreate
-				? "http://localhost:3001/books"
-				: `http://localhost:3001/books/${encodeURIComponent(editingId)}`;
-			const method = isCreate ? "POST" : "PATCH";
-
-			const res = await authFetch(url, {
-				method,
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ book_title, author }),
-			});
-
-			const data = (await res.json().catch(() => ({}))) as { error?: string };
-			if (res.status === 401) {
-				window.location.href = "/login";
-				return;
+			if (editingId === null) {
+				await createBook(book_title, author);
+			} else {
+				await updateBook(editingId, book_title, author);
 			}
-			if (!res.ok) {
-				setFormError(data.error ?? "Kunde inte spara boken.");
-				return;
-			}
-
 			await loadBooks();
 			setModalOpen(false);
-		} catch {
-			setFormError("Kunde inte nå servern.");
+		} catch (err) {
+			setFormError(err instanceof Error ? err.message : "Kunde inte spara boken.");
 		} finally {
 			setSaving(false);
 		}
@@ -129,23 +91,11 @@ export function LibraryPage() {
 		setFormError("");
 		setSaving(true);
 		try {
-			const res = await authFetch(`http://localhost:3001/books/${encodeURIComponent(editingId)}`, {
-				method: "DELETE",
-			});
-			const data = (await res.json().catch(() => ({}))) as { error?: string };
-			if (res.status === 401) {
-				window.location.href = "/login";
-				return;
-			}
-			if (!res.ok) {
-				setFormError(data.error ?? "Kunde inte radera boken.");
-				return;
-			}
-
+			await deleteBook(editingId);
 			await loadBooks();
 			setModalOpen(false);
-		} catch {
-			setFormError("Kunde inte nå servern.");
+		} catch (err) {
+			setFormError(err instanceof Error ? err.message : "Kunde inte radera boken.");
 		} finally {
 			setSaving(false);
 		}
@@ -154,7 +104,6 @@ export function LibraryPage() {
 	const filteredBooks = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		if (!q) return books;
-
 		return books.filter(
 			book =>
 				book.book_title.toLowerCase().includes(q) ||
@@ -207,7 +156,6 @@ export function LibraryPage() {
 				</div>
 			</section>
 
-			{/* ── Results count ── */}
 			<div className="results-count">
 				<span>— {filteredBooks.length} volumes found —</span>
 			</div>
@@ -217,28 +165,25 @@ export function LibraryPage() {
 				{loading && <p>Laddar böcker...</p>}
 				{error && <p>{error}</p>}
 
-				{!loading && !error && filteredBooks.map(book => {
-					return (
-						<article className="book-card" key={book._id}>
-							<div className="card-spine" />
-							<div className="card-body">
-								<p className="card-genre">Book</p>
-								<h2 className="card-title">{book.book_title}</h2>
-								<p className="card-author">— {book.author}</p>
-								<div className="card-footer">
-									<button
-										className="edit-book-button"
-										type="button"
-										onClick={() => openEditModal(book)}
-									>
-										Edit
-									</button>
-								</div>
+				{!loading && !error && filteredBooks.map(book => (
+					<article className="book-card" key={book._id}>
+						<div className="card-spine" />
+						<div className="card-body">
+							<p className="card-genre">Book</p>
+							<h2 className="card-title">{book.book_title}</h2>
+							<p className="card-author">— {book.author}</p>
+							<div className="card-footer">
+								<button
+									className="edit-book-button"
+									type="button"
+									onClick={() => openEditModal(book)}
+								>
+									Edit
+								</button>
 							</div>
-						</article>
-					);
-				})}
-
+						</div>
+					</article>
+				))}
 			</main>
 
 			{/* ── Footer ── */}

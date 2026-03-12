@@ -1,0 +1,66 @@
+{
+    "hidefiles.configurationType": "local",
+    "hidefiles.globalConfig": {
+        "profiles": [
+            {
+                "name": "Default",
+                "detail": "",
+                "description": "Test",
+                "hidden": [
+                    ".vscode/"
+                ]
+            },
+            {
+                "name": "Strict",
+                "detail": "Hide everything not immediately required",
+                "hidden": [
+                    "$Default",
+                    ".gitignore",
+                    "README.md",
+                    "server/node_modules/",
+                    "node_modules/",
+                    "server/.gitignore",
+                    "server/package.json",
+                    "server/README.md",
+                    "server/tsconfig.json",
+                    "server/bun.lock",
+                    "src/logo.svg",
+                    "src/react.svg",
+                    "bun.lock",
+                    "bunfig.toml",
+                    "bun-env.d.ts",
+                    "package-lock.json",
+                    "package.json",
+                    "tsconfig.json",
+                    "tsconfig.json"
+                ]
+            }
+        ]
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        ".vscode/": true,
+        ".gitignore": true,
+        "README.md": true,
+        "server/node_modules/": true,
+        "node_modules/": true,
+        "server/.gitignore": true,
+        "server/package.json": true,
+        "server/README.md": true,
+        "server/tsconfig.json": true,
+        "server/bun.lock": true,
+        "src/logo.svg": true,
+        "src/react.svg": true,
+        "bun.lock": true,
+        "bunfig.toml": true,
+        "bun-env.d.ts": true,
+        "package-lock.json": true,
+        "package.json": true,
+        "tsconfig.json": true
+    },
+    "hidefiles.selectedProfile": "Strict"
+}
