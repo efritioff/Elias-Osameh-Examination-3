@@ -1,6 +1,7 @@
 import "./index.css";
 import LibraryPage from "./pages/library.tsx";
 import { LoginPage } from "./pages/Login.tsx";
+import MyBooksPage from "./pages/mybooks.tsx";
 import { RegisterPage } from "./pages/Register.tsx";
 
 
@@ -19,6 +20,9 @@ if (path === "/library") {
     return <LibraryPage />;
   }
 
+  if (path === "/authors") {
+    return <MyBooksPage />;
+  }
 
   if (path !== "/") {
     return (
@@ -26,7 +30,8 @@ if (path === "/library") {
         <h1>404 - Page not found</h1>
         <p>
           Try <a href="/">/</a>, <a href="/login">/login</a>, or{" "}
-          <a href="/register">/register</a>.
+          <a href="/register">/register</a>, <a href="/library">/library</a>, or{" "}
+          <a href="/authors">/authors</a>.
         </p>
       </div>
     );
