@@ -1,6 +1,8 @@
 import { authFetch } from "../auth";
 
-const BASE = "http://localhost:3001";
+import { API_BASE } from "./config";
+
+const BASE = API_BASE;
 
 export type Author = {
   _id: string;

@@ -1,7 +1,7 @@
 import { corsHeaders } from "./config.ts";
-import { handleBooks } from "./routes/Books.ts";
-import { handleAuthors } from "./routes/Authors.ts";
-import { handleAuthRoutes } from "./routes/Authroutes.ts";
+import { handleBooks } from "./routes/books.ts";
+import { handleAuthors } from "./routes/authors.ts";
+import { handleAuthRoutes } from "./routes/authRoutes.ts";
 
 Bun.serve({
   port: 3001,

@@ -1,6 +1,6 @@
 import "../Css/library.css";
 import { useEffect, useMemo, useState } from "react";
-import { logout } from "../auth";
+import { isAdminUser, logout } from "../auth";
 import { fetchAuthors, createAuthor, updateAuthor, deleteAuthor, type Author } from "../api/authors";
 
 export function MyBooksPage() {
@@ -16,6 +16,7 @@ export function MyBooksPage() {
   const [formGender, setFormGender] = useState("Agender");
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const isAdmin = isAdminUser();
 
   async function loadAuthors() {
     setLoading(true);
@@ -51,6 +52,7 @@ export function MyBooksPage() {
   }, [authors, query]);
 
   function openCreateModal() {
+    if (!isAdmin) return;
     setEditingId(null);
     setFormName("");
     setFormBirthYear(2000);
@@ -60,6 +62,7 @@ export function MyBooksPage() {
   }
 
   function openEditModal(author: Author) {
+    if (!isAdmin) return;
     setEditingId(author._id);
     setFormName(author.name);
     setFormBirthYear(author.birth_year);
@@ -76,6 +79,7 @@ export function MyBooksPage() {
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!isAdmin) return;
     setFormError("");
 
     const name = formName.trim();
@@ -103,6 +107,7 @@ export function MyBooksPage() {
   }
 
   async function handleDelete() {
+    if (!isAdmin) return;
     if (!editingId) return;
     setFormError("");
     setSaving(true);
@@ -140,9 +145,11 @@ export function MyBooksPage() {
 
       <section className="lib-toolbar">
         <div className="toolbar-actions">
-          <button className="add-book-button" onClick={openCreateModal} type="button">
-            Add Author
-          </button>
+          {isAdmin && (
+            <button className="add-book-button" onClick={openCreateModal} type="button">
+              Add Author
+            </button>
+          )}
         </div>
         <div className="search-wrap">
           <span className="search-icon">⚲</span>
@@ -172,15 +179,17 @@ export function MyBooksPage() {
               <h2 className="card-title">{author.name}</h2>
               <p className="card-author">Birth year: {author.birth_year}</p>
               <p className="card-author">Gender: {author.gender}</p>
-              <div className="card-footer">
-                <button
-                  className="edit-book-button"
-                  type="button"
-                  onClick={() => openEditModal(author)}
-                >
-                  Edit
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="card-footer">
+                  <button
+                    className="edit-book-button"
+                    type="button"
+                    onClick={() => openEditModal(author)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
             </div>
           </article>
         ))}
@@ -190,53 +199,55 @@ export function MyBooksPage() {
         <p>❧ Bibliotheca — {new Date().getFullYear()} ❧</p>
       </footer>
 
-      <div className={`edit-overlay ${modalOpen ? "open" : ""}`} onClick={closeModal}>
-        <div className="edit-modal" onClick={e => e.stopPropagation()}>
-          <h2>{editingId ? "Edit Author" : "Add Author"}</h2>
-          <form className="edit-form" onSubmit={handleSave}>
-            <label htmlFor="author-name">Name</label>
-            <input
-              id="author-name"
-              type="text"
-              value={formName}
-              onChange={e => setFormName(e.target.value)}
-              required
-            />
+      {isAdmin && (
+        <div className={`edit-overlay ${modalOpen ? "open" : ""}`} onClick={closeModal}>
+          <div className="edit-modal" onClick={e => e.stopPropagation()}>
+            <h2>{editingId ? "Edit Author" : "Add Author"}</h2>
+            <form className="edit-form" onSubmit={handleSave}>
+              <label htmlFor="author-name">Name</label>
+              <input
+                id="author-name"
+                type="text"
+                value={formName}
+                onChange={e => setFormName(e.target.value)}
+                required
+              />
 
-            <label htmlFor="author-birth-year">Birth Year</label>
-            <input
-              id="author-birth-year"
-              type="number"
-              value={formBirthYear}
-              onChange={e => setFormBirthYear(Number(e.target.value))}
-              required
-            />
+              <label htmlFor="author-birth-year">Birth Year</label>
+              <input
+                id="author-birth-year"
+                type="number"
+                value={formBirthYear}
+                onChange={e => setFormBirthYear(Number(e.target.value))}
+                required
+              />
 
-            <label htmlFor="author-gender">Gender</label>
-            <input
-              id="author-gender"
-              type="text"
-              value={formGender}
-              onChange={e => setFormGender(e.target.value)}
-              required
-            />
+              <label htmlFor="author-gender">Gender</label>
+              <input
+                id="author-gender"
+                type="text"
+                value={formGender}
+                onChange={e => setFormGender(e.target.value)}
+                required
+              />
 
-            {formError && <p className="form-error">{formError}</p>}
+              {formError && <p className="form-error">{formError}</p>}
 
-            <div className="modal-actions">
-              <button type="button" onClick={closeModal} disabled={saving}>Cancel</button>
-              {editingId && (
-                <button type="button" className="danger" onClick={handleDelete} disabled={saving}>
-                  Delete
+              <div className="modal-actions">
+                <button type="button" onClick={closeModal} disabled={saving}>Cancel</button>
+                {editingId && (
+                  <button type="button" className="danger" onClick={handleDelete} disabled={saving}>
+                    Delete
+                  </button>
+                )}
+                <button type="submit" className="primary" disabled={saving}>
+                  {saving ? "Saving..." : "Save"}
                 </button>
-              )}
-              <button type="submit" className="primary" disabled={saving}>
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </form>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

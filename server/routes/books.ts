@@ -1,7 +1,14 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, type Filter, type Document } from "mongodb";
 import { books } from "../db.ts";
-import { requireAccessToken } from "../auth.ts";
-import { jsonResponse } from "../Utils.ts";
+import { requireAdmin } from "../auth.ts";
+import { jsonResponse } from "../utils.ts";
+
+function buildBookIdFilter(bookId: string) {
+  const filter = ObjectId.isValid(bookId)
+    ? { $or: [{ _id: bookId }, { _id: new ObjectId(bookId) }] }
+    : { _id: bookId };
+  return filter as Filter<Document>;
+}
 
 export async function handleBooks(req: Request, url: URL): Promise<Response | null> {
 
@@ -26,11 +33,7 @@ export async function handleBooks(req: Request, url: URL): Promise<Response | nu
     const bookId = decodeURIComponent(url.pathname.replace("/books/", "")).trim();
     if (!bookId) return jsonResponse({ error: "book id krävs" }, { status: 400 });
 
-    const filter: any = ObjectId.isValid(bookId)
-      ? { $or: [{ _id: bookId }, { _id: new ObjectId(bookId) }] }
-      : { _id: bookId };
-
-    const row: any = await books.findOne(filter, {
+    const row = await books.findOne(buildBookIdFilter(bookId), {
       projection: { _id: 1, book_title: 1, author: 1 },
     });
 
@@ -48,8 +51,8 @@ export async function handleBooks(req: Request, url: URL): Promise<Response | nu
 
   // CREATE
   if (req.method === "POST" && url.pathname === "/books") {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const body = await req.json().catch(() => null) as null | {
       book_title?: string;
@@ -73,8 +76,8 @@ export async function handleBooks(req: Request, url: URL): Promise<Response | nu
 
   // UPDATE
   if (req.method === "PATCH" && url.pathname.startsWith("/books/")) {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const bookId = decodeURIComponent(url.pathname.replace("/books/", "")).trim();
     if (!bookId) return jsonResponse({ error: "book id krävs" }, { status: 400 });
@@ -100,11 +103,7 @@ export async function handleBooks(req: Request, url: URL): Promise<Response | nu
       return jsonResponse({ error: "inga fält att uppdatera" }, { status: 400 });
     }
 
-    const filter: any = ObjectId.isValid(bookId)
-      ? { $or: [{ _id: bookId }, { _id: new ObjectId(bookId) }] }
-      : { _id: bookId };
-
-    const result = await books.updateOne(filter, { $set: updates });
+    const result = await books.updateOne(buildBookIdFilter(bookId), { $set: updates });
     if (result.matchedCount === 0) return jsonResponse({ error: "book finns inte" }, { status: 404 });
 
     return jsonResponse({ ok: true });
@@ -112,17 +111,13 @@ export async function handleBooks(req: Request, url: URL): Promise<Response | nu
 
   // DELETE
   if (req.method === "DELETE" && url.pathname.startsWith("/books/")) {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const bookId = decodeURIComponent(url.pathname.replace("/books/", "")).trim();
     if (!bookId) return jsonResponse({ error: "book id krävs" }, { status: 400 });
 
-    const filter: any = ObjectId.isValid(bookId)
-      ? { $or: [{ _id: bookId }, { _id: new ObjectId(bookId) }] }
-      : { _id: bookId };
-
-    const result = await books.deleteOne(filter);
+    const result = await books.deleteOne(buildBookIdFilter(bookId));
     if (result.deletedCount === 0) return jsonResponse({ error: "book finns inte" }, { status: 404 });
 
     return jsonResponse({ ok: true });

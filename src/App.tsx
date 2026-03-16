@@ -1,29 +1,22 @@
+import React from "react";
 import "./index.css";
 import LibraryPage from "./pages/library.tsx";
 import MyBooksPage from "./pages/mybooks.tsx";
 import { LoginPage } from "./pages/Login.tsx";
 import { RegisterPage } from "./pages/Register.tsx";
 
+const routes: Record<string, React.ComponentType> = {
+  "/login": LoginPage,
+  "/register": RegisterPage,
+  "/library": LibraryPage,
+  "/authors": MyBooksPage,
+};
 
 export function App() {
   const path = window.location.pathname.toLowerCase();
 
-  if (path === "/login") {
-    return <LoginPage />;
-  }
-
-  if (path === "/register") {
-    return <RegisterPage />;
-  }
-
-if (path === "/library") {
-    return <LibraryPage />;
-  }
-
-  if (path === "/authors") {
-    return <MyBooksPage />;
-  }
-
+  const Page = routes[path];
+  if (Page) return <Page />;
 
   if (path !== "/") {
     return (

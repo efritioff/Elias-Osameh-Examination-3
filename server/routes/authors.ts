@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { authors } from "../db.ts";
-import { requireAccessToken } from "../auth.ts";
-import { jsonResponse } from "../Utils.ts";
+import { requireAdmin } from "../auth.ts";
+import { jsonResponse } from "../utils.ts";
 
 function buildIdFilter(authorId: string) {
   const idNumber = Number(authorId);
@@ -54,8 +54,8 @@ export async function handleAuthors(req: Request, url: URL): Promise<Response | 
 
   // CREATE
   if (req.method === "POST" && url.pathname === "/authors") {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const body = await req.json().catch(() => null) as null | {
       name?: string;
@@ -85,8 +85,8 @@ export async function handleAuthors(req: Request, url: URL): Promise<Response | 
 
   // UPDATE
   if (req.method === "PATCH" && url.pathname.startsWith("/authors/")) {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const authorId = decodeURIComponent(url.pathname.replace("/authors/", "")).trim();
     if (!authorId) return jsonResponse({ error: "author id krävs" }, { status: 400 });
@@ -129,8 +129,8 @@ export async function handleAuthors(req: Request, url: URL): Promise<Response | 
 
   // DELETE
   if (req.method === "DELETE" && url.pathname.startsWith("/authors/")) {
-    const authResult = requireAccessToken(req);
-    if (!authResult.ok) return authResult.response;
+    const adminResult = requireAdmin(req);
+    if (!adminResult.ok) return adminResult.response;
 
     const authorId = decodeURIComponent(url.pathname.replace("/authors/", "")).trim();
     if (!authorId) return jsonResponse({ error: "author id krävs" }, { status: 400 });

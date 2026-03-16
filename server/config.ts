@@ -12,11 +12,12 @@ export const REFRESH_SECRET: string = refreshSecret;
 
 export const accessTtl = (process.env.ACCESS_TTL || "15m") as SignOptions["expiresIn"];
 export const refreshTtl = (process.env.REFRESH_TTL || "7d") as SignOptions["expiresIn"];
+export const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() ?? "";
 
 export const isProd = process.env.NODE_ENV === "production";
 
 export const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:3000",
+  "Access-Control-Allow-Origin": process.env.CORS_ORIGIN ?? "http://localhost:3000",
   "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Credentials": "true",

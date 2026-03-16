@@ -1,6 +1,7 @@
 import "../Css/login.css";
 import { useState } from "react";
 import { setAccessToken } from "../auth";
+import { API_BASE } from "../api/config";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ export function LoginPage() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:3001/auth/login", {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -38,7 +39,7 @@ export function LoginPage() {
 
       window.location.href = "/library";
     } catch {
-      setMessage("Kunde inte nå servern på http://localhost:3001");
+      setMessage(`Could not reach server at ${API_BASE}`);
     } finally {
       setLoading(false);
     }
@@ -49,16 +50,18 @@ export function LoginPage() {
       <div className="form-wrapper">
         <h1>Login</h1>
         <form className="login-form" onSubmit={handleLogin}>
-          <p>Email</p>
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
             placeholder="example@gmail.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
-          <p>Password</p>
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
             placeholder="password"
             value={password}

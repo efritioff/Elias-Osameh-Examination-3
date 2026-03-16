@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI!;
+const uri = process.env.MONGO_URI;
+if (!uri) throw new Error("MONGO_URI must be set in .env");
 const client = new MongoClient(uri);
 
 await client.connect();

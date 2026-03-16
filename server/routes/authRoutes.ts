@@ -2,13 +2,16 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
 import { users, refreshTokens } from "../db.ts";
-import { REFRESH_SECRET, ACCESS_SECRET } from "../config.ts";
+import { REFRESH_SECRET, adminEmail } from "../config.ts";
 import {
   issueAccessToken,
   issueRefreshToken,
   persistRefreshToken,
+  requireAccessToken,
+  resolveRole,
+  type UserRole,
 } from "../auth.ts";
-import { parseCookies, buildRefreshCookie, clearRefreshCookie, jsonResponse } from "../Utils.ts";
+import { parseCookies, buildRefreshCookie, clearRefreshCookie, jsonResponse } from "../utils.ts";
 
 export async function handleAuthRoutes(req: Request, url: URL): Promise<Response | null> {
 
@@ -23,19 +26,21 @@ export async function handleAuthRoutes(req: Request, url: URL): Promise<Response
     const password = body?.password;
 
     if (!email || !password) {
-      return jsonResponse({ error: "email och password krävs" }, { status: 400 });
+      return jsonResponse({ error: "email and password are required" }, { status: 400 });
     }
     if (password.trim().length < 6) {
-      return jsonResponse({ error: "losenordet maste vara minst 6 tecken" }, { status: 400 });
+      return jsonResponse({ error: "password must be at least 6 characters" }, { status: 400 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
 
+    const role: UserRole = adminEmail && email === adminEmail ? "admin" : "user";
+
     try {
-      const result = await users.insertOne({ email, passwordHash, createdAt: new Date() });
+      const result = await users.insertOne({ email, passwordHash, role, createdAt: new Date() });
       return jsonResponse({ ok: true, userId: result.insertedId });
     } catch {
-      return jsonResponse({ error: "email finns redan" }, { status: 409 });
+      return jsonResponse({ error: "email already exists" }, { status: 409 });
     }
   }
 
@@ -50,18 +55,20 @@ export async function handleAuthRoutes(req: Request, url: URL): Promise<Response
     const password = body?.password;
 
     if (!email || !password) {
-      return jsonResponse({ error: "email och password krävs" }, { status: 400 });
+      return jsonResponse({ error: "email and password are required" }, { status: 400 });
     }
 
     const user = await users.findOne({ email });
-    if (!user) return jsonResponse({ error: "fel inloggning" }, { status: 401 });
+    if (!user) return jsonResponse({ error: "invalid credentials" }, { status: 401 });
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return jsonResponse({ error: "fel inloggning" }, { status: 401 });
+    if (!ok) return jsonResponse({ error: "invalid credentials" }, { status: 401 });
 
     const userId = String(user._id);
-    const accessToken = issueAccessToken(userId, user.email);
-    const refreshToken = issueRefreshToken(userId, user.email);
+    const role = resolveRole(user.role);
+
+    const accessToken = issueAccessToken(userId, user.email, role);
+    const refreshToken = issueRefreshToken(userId, user.email, role);
 
     await persistRefreshToken(userId, refreshToken);
 
@@ -98,8 +105,9 @@ export async function handleAuthRoutes(req: Request, url: URL): Promise<Response
       const user = await users.findOne({ _id: new ObjectId(decoded.sub) });
       if (!user?.email) return jsonResponse({ error: "User not found" }, { status: 401 });
 
-      const newAccessToken = issueAccessToken(decoded.sub, user.email);
-      const newRefreshToken = issueRefreshToken(decoded.sub, user.email);
+      const role = resolveRole(user.role);
+      const newAccessToken = issueAccessToken(decoded.sub, user.email, role);
+      const newRefreshToken = issueRefreshToken(decoded.sub, user.email, role);
 
       await persistRefreshToken(decoded.sub, newRefreshToken);
 
@@ -131,18 +139,9 @@ export async function handleAuthRoutes(req: Request, url: URL): Promise<Response
 
   // ME
   if (req.method === "GET" && url.pathname === "/me") {
-    const auth = req.headers.get("authorization");
-    if (!auth) return jsonResponse({ error: "No token" }, { status: 401 });
-
-    const token = auth.split(" ")[1];
-    if (!token) return jsonResponse({ error: "No token" }, { status: 401 });
-
-    try {
-      const decoded = jwt.verify(token, ACCESS_SECRET);
-      return jsonResponse({ message: "You are authenticated", user: decoded });
-    } catch {
-      return jsonResponse({ error: "Invalid token" }, { status: 401 });
-    }
+    const authResult = requireAccessToken(req);
+    if (!authResult.ok) return authResult.response;
+    return jsonResponse({ message: "You are authenticated", user: authResult.decoded });
   }
 
   return null;

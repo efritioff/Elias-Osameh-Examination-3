@@ -1,6 +1,6 @@
 import "../Css/library.css";
 import { useEffect, useMemo, useState } from "react";
-import { logout } from "../auth";
+import { isAdminUser, logout } from "../auth";
 import { fetchBooks, createBook, updateBook, deleteBook, type Book } from "../api/books";
 
 export function LibraryPage() {
@@ -14,6 +14,7 @@ export function LibraryPage() {
 	const [formAuthor, setFormAuthor] = useState("");
 	const [formError, setFormError] = useState("");
 	const [saving, setSaving] = useState(false);
+	const isAdmin = isAdminUser();
 
 	async function loadBooks() {
 			setLoading(true);
@@ -38,6 +39,7 @@ export function LibraryPage() {
 	}, []);
 
 	function openCreateModal() {
+		if (!isAdmin) return;
 		setEditingId(null);
 		setFormTitle("");
 		setFormAuthor("");
@@ -46,6 +48,7 @@ export function LibraryPage() {
 	}
 
 	function openEditModal(book: Book) {
+		if (!isAdmin) return;
 		setEditingId(book._id);
 		setFormTitle(book.book_title);
 		setFormAuthor(book.author);
@@ -61,6 +64,7 @@ export function LibraryPage() {
 
 	async function handleSave(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		if (!isAdmin) return;
 		setFormError("");
 
 		const book_title = formTitle.trim();
@@ -87,6 +91,7 @@ export function LibraryPage() {
 	}
 
 	async function handleDelete() {
+		if (!isAdmin) return;
 		if (!editingId) return;
 		setFormError("");
 		setSaving(true);
@@ -140,9 +145,11 @@ export function LibraryPage() {
 			{/* ── Search & Filter ── */}
 			<section className="lib-toolbar">
 				<div className="toolbar-actions">
-					<button className="add-book-button" onClick={openCreateModal} type="button">
-						Add Book
-					</button>
+					{isAdmin && (
+						<button className="add-book-button" onClick={openCreateModal} type="button">
+							Add Book
+						</button>
+					)}
 				</div>
 				<div className="search-wrap">
 					<span className="search-icon">⚲</span>
@@ -172,15 +179,17 @@ export function LibraryPage() {
 							<p className="card-genre">Book</p>
 							<h2 className="card-title">{book.book_title}</h2>
 							<p className="card-author">— {book.author}</p>
-							<div className="card-footer">
-								<button
-									className="edit-book-button"
-									type="button"
-									onClick={() => openEditModal(book)}
-								>
-									Edit
-								</button>
-							</div>
+							{isAdmin && (
+								<div className="card-footer">
+									<button
+										className="edit-book-button"
+										type="button"
+										onClick={() => openEditModal(book)}
+									>
+										Edit
+									</button>
+								</div>
+							)}
 						</div>
 					</article>
 				))}
@@ -191,7 +200,8 @@ export function LibraryPage() {
 				<p>❧ Bibliotheca — {new Date().getFullYear()} ❧</p>
 			</footer>
 
-			<div className={`edit-overlay ${modalOpen ? "open" : ""}`} onClick={closeModal}>
+			{isAdmin && (
+				<div className={`edit-overlay ${modalOpen ? "open" : ""}`} onClick={closeModal}>
 				<div className="edit-modal" onClick={e => e.stopPropagation()}>
 					<h2>{editingId ? "Edit Book" : "Add Book"}</h2>
 					<form className="edit-form" onSubmit={handleSave}>
@@ -228,7 +238,8 @@ export function LibraryPage() {
 						</div>
 					</form>
 				</div>
-			</div>
+				</div>
+			)}
 
 		</div>
 	);
