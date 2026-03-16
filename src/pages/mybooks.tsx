@@ -1,13 +1,7 @@
 import "./Library.css";
 import { useEffect, useMemo, useState } from "react";
-import { authFetch, logout } from "../auth";
-
-type Author = {
-  _id: string;
-  name: string;
-  birth_year: number;
-  gender: string;
-};
+import { logout } from "../auth";
+import { fetchAuthors, createAuthor, updateAuthor, deleteAuthor, type Author } from "../api/authors";
 
 export function MyBooksPage() {
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -26,27 +20,11 @@ export function MyBooksPage() {
   async function loadAuthors() {
     setLoading(true);
     setError("");
-
     try {
-      const res = await authFetch("http://localhost:3001/authors");
-      const data = (await res.json().catch(() => ({}))) as {
-        authors?: Author[];
-        error?: string;
-      };
-
-      if (res.status === 401) {
-        window.location.href = "/login";
-        return;
-      }
-
-      if (!res.ok) {
-        setError(data.error ?? "Kunde inte hämta authors.");
-        return;
-      }
-
-      setAuthors(data.authors ?? []);
-    } catch {
-      setError("Kunde inte nå servern på http://localhost:3001");
+      const data = await fetchAuthors();
+      setAuthors(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunde inte nå servern.");
     } finally {
       setLoading(false);
     }
@@ -64,7 +42,6 @@ export function MyBooksPage() {
   const filteredAuthors = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return authors;
-
     return authors.filter(
       author =>
         author.name.toLowerCase().includes(q) ||
@@ -111,32 +88,15 @@ export function MyBooksPage() {
 
     setSaving(true);
     try {
-      const isCreate = editingId === null;
-      const url = isCreate
-        ? "http://localhost:3001/authors"
-        : `http://localhost:3001/authors/${encodeURIComponent(editingId)}`;
-      const method = isCreate ? "POST" : "PATCH";
-
-      const res = await authFetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, birth_year: birthYear, gender }),
-      });
-
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (res.status === 401) {
-        window.location.href = "/login";
-        return;
+      if (editingId === null) {
+        await createAuthor(name, birthYear, gender);
+      } else {
+        await updateAuthor(editingId, name, birthYear, gender);
       }
-      if (!res.ok) {
-        setFormError(data.error ?? "Kunde inte spara author.");
-        return;
-      }
-
       await loadAuthors();
       setModalOpen(false);
-    } catch {
-      setFormError("Kunde inte nå servern.");
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Kunde inte spara author.");
     } finally {
       setSaving(false);
     }
@@ -144,28 +104,14 @@ export function MyBooksPage() {
 
   async function handleDelete() {
     if (!editingId) return;
-
     setFormError("");
     setSaving(true);
     try {
-      const res = await authFetch(`http://localhost:3001/authors/${encodeURIComponent(editingId)}`, {
-        method: "DELETE",
-      });
-
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (res.status === 401) {
-        window.location.href = "/login";
-        return;
-      }
-      if (!res.ok) {
-        setFormError(data.error ?? "Kunde inte ta bort author.");
-        return;
-      }
-
+      await deleteAuthor(editingId);
       await loadAuthors();
       setModalOpen(false);
-    } catch {
-      setFormError("Kunde inte nå servern.");
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Kunde inte ta bort author.");
     } finally {
       setSaving(false);
     }
@@ -198,7 +144,6 @@ export function MyBooksPage() {
             Add Author
           </button>
         </div>
-
         <div className="search-wrap">
           <span className="search-icon">⚲</span>
           <input
