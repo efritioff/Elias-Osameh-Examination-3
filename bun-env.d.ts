@@ -15,3 +15,10 @@ declare module "*.module.css" {
   const classes: { readonly [key: string]: string };
   export = classes;
 }
+
+interface ImportMeta {
+  env?: {
+    BUN_PUBLIC_API_URL?: string;
+    VITE_API_URL?: string;
+  };
+}

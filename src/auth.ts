@@ -4,6 +4,36 @@ export function getAccessToken() {
   return localStorage.getItem("accessToken") ?? "";
 }
 
+export type UserRole = "admin" | "user";
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  if (!token) return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  try {
+    const payload = parts[1];
+    if (!payload) return null;
+
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const payloadText = atob(padded);
+    return JSON.parse(payloadText) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+export function getUserRole(): UserRole {
+  const payload = decodeJwtPayload(getAccessToken());
+  return payload?.role === "admin" ? "admin" : "user";
+}
+
+export function isAdminUser() {
+  return getUserRole() === "admin";
+}
+
 export function setAccessToken(token: string) {
   if (!token) return;
   localStorage.setItem("accessToken", token);

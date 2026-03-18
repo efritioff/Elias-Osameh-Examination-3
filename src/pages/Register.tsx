@@ -1,5 +1,6 @@
-import "./Register.css";
+import "../Css/register.css";
 import { useState } from "react";
+import { API_BASE } from "../api/config";
 
 export function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,6 @@ export function RegisterPage() {
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     if (password.trim().length < 6) {
       setMessage("Losenordet maste vara minst 6 tecken.");
@@ -19,12 +19,11 @@ export function RegisterPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/auth/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
       };
@@ -36,7 +35,7 @@ export function RegisterPage() {
 
       window.location.href = "/login";
     } catch {
-      setMessage("Kunde inte nå servern på http://localhost:3001");
+      setMessage(`Could not reach server at ${API_BASE}`);
     } finally {
       setLoading(false);
     }
@@ -47,16 +46,18 @@ export function RegisterPage() {
       <div className="form-wrapper">
         <h1>Register</h1>
         <form className="register-form" onSubmit={handleRegister}>
-          <p>Email</p>
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
             placeholder="example@gmail.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
-          <p>Password</p>
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
             placeholder="password"
             value={password}
